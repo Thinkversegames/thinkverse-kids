@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThinkVerse Kids - Find the Different Number</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0; min-height:100vh; padding:14px;
+  font-family:Arial,sans-serif; color:#18213f;
+  background:linear-gradient(135deg,#ffe6f2,#dff7ff,#fff5c7);
+  display:flex; align-items:center; justify-content:center;
+}
+.game{
+  width:100%; max-width:540px; background:#fff;
+  border-radius:28px; padding:18px; text-align:center;
+  box-shadow:0 14px 45px rgba(40,50,90,.18);
+}
+.logo{font-size:30px;font-weight:900;margin:2px 0}
+.kids{font-size:14px;font-weight:800;letter-spacing:2px}
+.subtitle{font-size:17px;margin:5px 0 12px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:10px}
+.stat{border-radius:16px;padding:9px 3px;background:#f3f6ff}
+.stat b{display:block;font-size:20px}.stat span{font-size:10px;font-weight:800}
+#message{min-height:28px;font-weight:800;font-size:17px;margin:8px}
+.hearts{font-size:22px;letter-spacing:3px;margin:4px}
+.grid{display:grid;gap:6px;margin:12px auto;max-width:450px}
+.cell{
+  aspect-ratio:1;border:0;border-radius:12px;
+  background:#eef2ff;color:#20294b;font-weight:900;
+  font-size:clamp(13px,4vw,22px);cursor:pointer;
+  box-shadow:0 3px 0 #d7dcf2;transition:.08s;
+}
+.cell:active{transform:scale(.9)}
+.cell.correct{background:#baf5c2;box-shadow:0 3px 0 #83d78f}
+.cell.wrong{background:#ffd0d0;animation:shake .18s}
+.action{
+  border:0;border-radius:16px;padding:13px 25px;
+  font-size:17px;font-weight:900;cursor:pointer;
+  background:#18213f;color:white;min-width:150px;
+}
+.action:disabled{opacity:.5}
+.badges{margin-top:10px;font-size:13px;font-weight:700;min-height:20px}
+.musicBtn{margin-top:10px;border:0;border-radius:12px;padding:9px 14px;background:#eef2ff;color:#18213f;font-weight:800;cursor:pointer}.tip{font-size:12px;color:#66708f;margin-top:8px}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.pop{animation:pop .25s}
+@keyframes pop{50%{transform:scale(1.08)}}
+@media(max-width:390px){.game{padding:13px}.stats{gap:4px}.stat{padding:7px 2px}}
+</style>
+</head>
+<body>
+<div class="game">
+  <div class="logo">🧠 ThinkVerse</div>
+  <div class="kids">KIDS BRAIN CHALLENGE</div>
+  <div class="subtitle">🌟 Find the different number!</div>
+
+  <div class="stats">
+    <div class="stat"><b id="level">1</b><span>LEVEL</span></div>
+    <div class="stat"><b id="score">0</b><span>STARS ⭐</span></div>
+    <div class="stat"><b id="time">10</b><span>TIME ⏱️</span></div>
+    <div class="stat"><b id="best">0</b><span>BEST 🏆</span></div>
+  </div>
+
+  <div class="hearts" id="hearts">❤️❤️❤️</div>
+  <div id="message">Tap START to play!</div>
+  <div id="grid" class="grid"></div>
+  <button id="startBtn" class="action">START 🚀</button>
+  <div class="badges" id="badges">🎯 Complete a level to earn stars!</div>
+  <button id="musicBtn" class="musicBtn">🎵 Music: ON</button><div class="tip">Look carefully — the answer may be hiding anywhere!</div>
+</div>
+
+<script>
+let level=1, score=0, best=Number(localStorage.getItem("thinkverseBest")||0);
+let lives=3, timeLeft=10, timer=null, playing=false, target="";
+
+const $=id=>document.getElementById(id);
+$("best").textContent=best;
+
+var musicOn = true;
+var musicTimer = null;
+var musicStep = 0;
+var audioCtx = null;
+
+function getAudio(){
+  try{
+    if(!audioCtx){
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return null;
+      audioCtx = new AC();
+    }
+    if(audioCtx.state === "suspended") audioCtx.resume();
+    return audioCtx;
+  }catch(e){ return null; }
+}
+
+function tone(freq,duration,volume,wave,delay){
+  var ctx=getAudio();
+  if(!ctx) return;
+  delay=delay||0; wave=wave||"sine";
+  var o=ctx.createOscillator(), g=ctx.createGain();
+  o.type=wave; o.frequency.value=freq;
+  o.connect(g); g.connect(ctx.destination);
+  var t=ctx.currentTime+delay;
+  g.gain.setValueAtTime(0.001,t);
+  g.gain.linearRampToValueAtTime(volume,t+0.015);
+  g.gain.linearRampToValueAtTime(0.001,t+duration);
+  o.start(t); o.stop(t+duration+0.03);
+}
+
+function sound(type){
+  if(type==="good"){
+    tone(660,.10,.06,"sine",0);
+    tone(880,.13,.05,"sine",.08);
+  }else if(type==="bad"){
+    tone(220,.12,.05,"triangle",0);
+    tone(170,.16,.04,"triangle",.09);
+  }else if(type==="win"){
+    tone(523,.15,.05,"sine",0);
+    tone(659,.15,.05,"sine",.09);
+    tone(784,.15,.05,"sine",.18);
+    tone(1047,.18,.06,"sine",.27);
+  }else if(type==="best"){
+    tone(784,.15,.06,"sine",0);
+    tone(988,.15,.06,"sine",.09);
+    tone(1175,.15,.06,"sine",.18);
+    tone(1568,.20,.07,"sine",.27);
+  }
+}
+
+var melody=[
+  [523,.20],[659,.20],[784,.20],[659,.20],
+  [587,.20],[698,.20],[880,.24],[698,.20],
+  [523,.20],[659,.20],[784,.20],[988,.24],
+  [880,.20],[784,.20],[659,.24],[587,.26]
+];
+
+function musicTick(){
+  if(!musicOn) return;
+  var note=melody[musicStep % melody.length];
+  tone(note[0],note[1],.014,"sine",0);
+  if(musicStep % 4 === 0) tone(note[0]/2,note[1]+.05,.008,"sine",.02);
+  musicStep++;
+}
+
+function startMusic(){
+  if(!musicOn) return;
+  getAudio();
+  if(musicTimer) clearInterval(musicTimer);
+  musicTimer=setInterval(musicTick,240);
+  musicTick();
+}
+
+function stopMusic(){
+  if(musicTimer) clearInterval(musicTimer);
+  musicTimer=null;
+}
+
+function toggleMusic(){
+  musicOn=!musicOn;
+  document.getElementById("musicBtn").textContent =
+    musicOn ? "🎵 Music: ON" : "🔇 Music: OFF";
+  if(musicOn) startMusic(); else stopMusic();
+}
+
+function update(){
+  $("level").textContent=level;
+  $("score").textContent=score;
+  $("best").textContent=best;
+  $("time").textContent=timeLeft;
+  $("hearts").textContent="❤️".repeat(lives)+"🖤".repeat(3-lives);
+}
+
+function setup(){
+  const size=Math.min(9,4+Math.floor((level-1)/2));
+  const count=size*size;
+  const pairs=[
+    ["84","94"],["6","9"],["12","21"],["35","53"],
+    ["B","8"],["O","0"],["17","71"],["26","62"]
+  ];
+  const pair=pairs[(level-1)%pairs.length];
+  target=pair[0]; const decoy=pair[1];
+
+  $("grid").style.gridTemplateColumns=`repeat(${size},1fr)`;
+  $("grid").innerHTML="";
+  const targetIndex=Math.floor(Math.random()*count);
+
+  for(let i=0;i<count;i++){
+    const b=document.createElement("button");
+    b.className="cell";
+    b.textContent=i===targetIndex?target:decoy;
+    b.onclick=()=>choose(i===targetIndex,b);
+    $("grid").appendChild(b);
+  }
+
+  timeLeft=Math.max(5,11-Math.floor(level/2));
+  $("message").innerHTML=`Find <strong>${target}</strong>!`;
+  $("startBtn").textContent="PLAY ▶️";
+  update();
+
+  clearInterval(timer);
+  timer=setInterval(()=>{
+    timeLeft--; update();
+    if(timeLeft<=0){
+      clearInterval(timer); playing=false; lives--;
+      sound("bad"); update();
+      $("message").textContent="⏰ Time's up!";
+      if(lives<=0) gameOver(); else $("startBtn").textContent="TRY AGAIN 💪";
+    }
+  },1000);
+  playing=true;
+}
+
+function choose(correct,b){
+  if(!playing)return;
+  if(correct){
+    clearInterval(timer); playing=false;
+    const points=10+level*2+timeLeft+(lives*2);
+    score+=points;
+    b.classList.add("correct","pop");
+    var newBest = score > best;
+    if(newBest){best=score;localStorage.setItem("thinkverseBest",best)}
+    sound(newBest ? "best" : "win");
+    $("message").textContent=`🎉 Great job! +${points} stars`;
+    $("badges").textContent=level%5===0?"🏅 Amazing! You reached a new badge!":"⭐ Star earned!";
+    level++; update();
+    $("startBtn").textContent="NEXT LEVEL 🚀";
+  }else{
+    b.classList.add("wrong"); sound("bad"); lives--; update();
+    $("message").textContent="😊 Almost! Try another one.";
+    if(lives<=0){clearInterval(timer);playing=false;gameOver()}
+  }
+}
+
+function gameOver(){
+  playing=false; clearInterval(timer);
+  $("message").innerHTML=`🏁 Game over! You scored <strong>${score}</strong> stars.`;
+  $("startBtn").textContent="PLAY AGAIN 🔄";
+  $("badges").textContent=score>=50?"🌟 Super brain!":"💪 Keep practicing — you can do it!";
+}
+
+$("startBtn").onclick=()=>{
+  if(!playing){
+    getAudio();
+    startMusic();
+    if($("startBtn").textContent.includes("PLAY AGAIN")){
+      level=1;score=0;lives=3;$("badges").textContent="🎯 Complete a level to earn stars!";
+    }
+    setup();
+  }
+};
+update();
+document.getElementById("musicBtn").onclick = toggleMusic;
+</script>
+</body>
+</html>
