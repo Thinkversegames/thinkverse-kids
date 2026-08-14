@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThinkVerse Kids V5 - Brain Quest</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  padding:14px;
+  font-family:Arial,sans-serif;
+  color:#18213f;
+  background:linear-gradient(135deg,#dff7ff,#f5e8ff,#fff5c7);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.game{
+  width:100%;
+  max-width:560px;
+  background:white;
+  border-radius:30px;
+  padding:18px;
+  text-align:center;
+  box-shadow:0 15px 45px rgba(35,45,90,.20);
+}
+
+.logo{
+  font-size:30px;
+  font-weight:900;
+  margin:2px 0;
+}
+
+.kids{
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+.subtitle{
+  font-size:17px;
+  font-weight:700;
+  margin:6px 0 14px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:7px;
+  margin-bottom:10px;
+}
+
+.stat{
+  background:#f1f4ff;
+  border-radius:15px;
+  padding:8px 3px;
+}
+
+.stat b{
+  display:block;
+  font-size:20px;
+}
+
+.stat span{
+  font-size:9px;
+  font-weight:900;
+}
+
+.progress{
+  width:100%;
+  height:8px;
+  background:#e7eaf5;
+  border-radius:20px;
+  overflow:hidden;
+  margin:8px 0 12px;
+}
+
+.progressBar{
+  height:100%;
+  width:0%;
+  background:#18213f;
+  transition:.3s;
+}
+
+.lives{
+  font-size:22px;
+  letter-spacing:3px;
+  margin:5px;
+}
+
+.type{
+  display:inline-block;
+  background:#eef2ff;
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:900;
+  margin:3px;
+}
+
+.question{
+  font-size:22px;
+  font-weight:900;
+  margin:12px 5px;
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1.25;
+}
+
+.subquestion{
+  font-size:14px;
+  color:#66708f;
+  margin-bottom:10px;
+}
+
+.options{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin:12px auto;
+  max-width:470px;
+}
+
+.option{
+  border:0;
+  border-radius:17px;
+  padding:16px 8px;
+  min-height:62px;
+  background:#eef2ff;
+  color:#18213f;
+  font-size:18px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 4px 0 #d7dcf2;
+  transition:.1s;
+}
+
+.option:hover{
+  transform:translateY(-2px);
+}
+
+.option:active{
+  transform:scale(.96);
+}
+
+.option.correct{
+  background:#b9f3c3;
+  box-shadow:0 4px 0 #80d88d;
+}
+
+.option.wrong{
+  background:#ffd0d0;
+  animation:shake .2s;
+}
+
+.option:disabled{
+  cursor:default;
+}
+
+.action{
+  border:0;
+  border-radius:17px;
+  padding:14px 26px;
+  min-width:170px;
+  background:#18213f;
+  color:white;
+  font-size:17px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.music{
+  margin-top:10px;
+  border:0;
+  border-radius:13px;
+  padding:9px 14px;
+  background:#eef2ff;
+  color:#18213f;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.message{
+  min-height:30px;
+  font-size:16px;
+  font-weight:900;
+  margin:7px;
+}
+
+.badge{
+  min-height:23px;
+  margin-top:9px;
+  font-size:13px;
+  font-weight:800;
+}
+
+.tip{
+  font-size:11px;
+  color:#727b98;
+  margin-top:10px;
+}
+
+.memoryBox{
+  font-size:55px;
+  padding:20px;
+  border-radius:20px;
+  background:#f3f5ff;
+  margin:10px auto;
+  max-width:300px;
+}
+
+.sequence{
+  font-size:27px;
+  font-weight:900;
+  letter-spacing:8px;
+  background:#f3f5ff;
+  border-radius:18px;
+  padding:20px 10px;
+  margin:10px auto;
+  max-width:420px;
+}
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(20,30,60,.72);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:20;
+}
+
+.modal.show{
+  display:flex;
+}
+
+.card{
+  width:100%;
+  max-width:420px;
+  background:white;
+  border-radius:28px;
+  padding:28px 20px;
+  text-align:center;
+}
+
+.trophy{
+  font-size:65px;
+}
+
+.card h2{
+  font-size:23px;
+  margin:8px 0 18px;
+}
+
+.card p{
+  font-size:15px;
+  line-height:1.6;
+}
+
+.bigScore{
+  font-size:25px;
+  font-weight:900;
+  margin:10px;
+}
+
+@keyframes shake{
+  25%{transform:translateX(-6px)}
+  75%{transform:translateX(6px)}
+}
+
+@media(max-width:390px){
+  .game{padding:13px}
+  .stats{gap:4px}
+  .stat{padding:7px 2px}
+  .question{font-size:19px}
+  .option{font-size:16px;padding:13px 6px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+
+  <div class="logo">🧠 ThinkVerse</div>
+  <div class="kids">KIDS BRAIN QUEST • V5</div>
+  <div class="subtitle">🎮 5 Different Brain Games!</div>
+
+  <div class="stats">
+    <div class="stat">
+      <b id="level">1</b>
+      <span>LEVEL</span>
+    </div>
+
+    <div class="stat">
+      <b id="score">0</b>
+      <span>STARS ⭐</span>
+    </div>
+
+    <div class="stat">
+      <b id="time">10</b>
+      <span>TIME ⏱️</span>
+    </div>
+
+    <div class="stat">
+      <b id="best">0</b>
+      <span>BEST 🏆</span>
+    </div>
+  </div>
+
+  <div class="progress">
+    <div id="progressBar" class="progressBar"></div>
+  </div>
+
+  <div class="lives" id="lives">❤️❤️❤️</div>
+
+  <div id="type" class="type">🧩 BRAIN GAME</div>
+
+  <div id="question" class="question">
+    Ready for your brain adventure?
+  </div>
+
+  <div id="subquestion" class="subquestion">
+    20 challenges are waiting for you!
+  </div>
+
+  <div id="gameArea"></div>
+
+  <div id="message" class="message">
+    Tap START to begin!
+  </div>
+
+  <button id="startBtn" class="action">
+    START 🚀
+  </button>
+
+  <div id="badge" class="badge">
+    🎯 Complete challenges and collect Brain Badges!
+  </div>
+
+  <button id="musicBtn" class="music">
+    🎵 Music: ON
+  </button>
+
+  <div class="tip">
+    Think carefully • Have fun • Never give up! 💪
+  </div>
+
+</div>
+
+
+<!-- FINAL / MILESTONE MODAL -->
+
+<div id="modal" class="modal">
+
+  <div class="card">
+
+    <div id="modalTrophy" class="trophy">🏆</div>
+
+    <h2 id="modalTitle">
+      THINKVERSE CHAMPION!
+    </h2>
+
+    <p id="modalText">
+      Amazing thinking!
+    </p>
+
+    <div id="modalScore" class="bigScore">
+      ⭐ 0
+    </div>
+
+    <button id="modalBtn" class="action">
+      CONTINUE 🚀
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const $ = id => document.getElementById(id);
+
+
+/* =========================
+   GAME VARIABLES
+========================= */
+
+let level = 1;
+let score = 0;
+let lives = 3;
+let timeLeft = 10;
+let timer = null;
+let playing = false;
+let answered = false;
+
+let best = Number(
+  localStorage.getItem("thinkverseV5Best") || 0
+);
+
+$("best").textContent = best;
+
+
+/* =========================
+   AUDIO
+========================= */
+
+let audioCtx = null;
+let musicOn = true;
+let musicTimer = null;
+let musicStep = 0;
+
+function getAudio(){
+
+  try{
+
+    if(!audioCtx){
+
+      const AC =
+        window.AudioContext ||
+        window.webkitAudioContext;
+
+      if(!AC) return null;
+
+      audioCtx = new AC();
+    }
+
+    if(audioCtx.state === "suspended"){
+      audioCtx.resume();
+    }
+
+    return audioCtx;
+
+  }catch(e){
+
+    return null;
+
+  }
+
+}
+
+
+function tone(
+  frequency,
+  duration,
+  volume,
+  wave = "sine",
+  delay = 0
+){
+
+  const ctx = getAudio();
+
+  if(!ctx) return;
+
+  const oscillator =
+    ctx.createOscillator();
+
+  const gain =
+    ctx.createGain();
+
+  oscillator.type = wave;
+  oscillator.frequency.value = frequency;
+
+  oscillator.connect(gain);
+  gain.connect(ctx.destination);
+
+  const start =
+    ctx.currentTime + delay;
+
+  gain.gain.setValueAtTime(
+    0.001,
+    start
+  );
+
+  gain.gain.linearRampToValueAtTime(
+    volume,
+    start + 0.02
+  );
+
+  gain.gain.linearRampToValueAtTime(
+    0.001,
+    start + duration
+  );
+
+  oscillator.start(start);
+
+  oscillator.stop(
+    start + duration + .04
+  );
+}
+
+
+/* Correct answer */
+
+function correctSound(){
+
+  tone(523,.10,.09,"sine",0);
+  tone(659,.10,.09,"sine",.08);
+  tone(784,.15,.10,"sine",.16);
+
+}
+
+
+/* Wrong answer */
+
+function wrongSound(){
+
+  tone(260,.12,.08,"triangle",0);
+  tone(190,.18,.07,"triangle",.10);
+
+}
+
+
+/* Badge sound */
+
+function badgeSound(){
+
+  tone(523,.14,.10,"sine",0);
+  tone(659,.14,.10,"sine",.10);
+  tone(784,.14,.10,"sine",.20);
+  tone(1047,.20,.12,"sine",.30);
+
+}
+
+
+/* Champion sound */
+
+function championSound(){
+
+  tone(523,.15,.11,"sine",0);
+  tone(659,.15,.11,"sine",.10);
+  tone(784,.15,.11,"sine",.20);
+  tone(1047,.18,.12,"sine",.30);
+  tone(1319,.22,.13,"sine",.44);
+
+}
+
+
+/* Music */
+
+const melody = [
+
+  523,659,784,659,
+  587,698,880,698,
+  523,659,784,988,
+  880,784,659,587
+
+];
+
+
+function musicTick(){
+
+  if(!musicOn) return;
+
+  const note =
+    melody[musicStep % melody.length];
+
+  tone(
+    note,
+    .18,
+    .012,
+    "sine"
+  );
+
+  musicStep++;
+
+}
+
+
+function startMusic(){
+
+  if(!musicOn) return;
+
+  getAudio();
+
+  if(musicTimer){
+    clearInterval(musicTimer);
+  }
+
+  musicTimer =
+    setInterval(
+      musicTick,
+      260
+    );
+
+  musicTick();
+
+}
+
+
+function stopMusic(){
+
+  if(musicTimer){
+    clearInterval(musicTimer);
+  }
+
+  musicTimer = null;
+
+}
+
+
+function toggleMusic(){
+
+  musicOn = !musicOn;
+
+  $("musicBtn").textContent =
+    musicOn
+      ? "🎵 Music: ON"
+      : "🔇 Music: OFF";
+
+  if(musicOn){
+    startMusic();
+  }else{
+    stopMusic();
+  }
+
+}
+
+
+/* =========================
+   20 UNIQUE CHALLENGES
+========================= */
+
+const challenges = [
+
+  {
+    type:"🔢 Number Pattern",
+    question:"What number comes next?",
+    sub:"2 • 4 • 6 • 8 • ?",
+    options:["9","10","11","12"],
+    answer:"10"
+  },
+
+  {
+    type:"🧩 Missing Number",
+    question:"Find the missing number.",
+    sub:"5 + ? = 12",
+    options:["5","6","7","8"],
+    answer:"7"
+  },
+
+  {
+    type:"👀 Visual Detective",
+    question:"Which one is different?",
+    sub:"Look carefully!",
+    options:["🐶","🐶","🐱","🐶"],
+    answer:"🐱"
+  },
+
+  {
+    type:"⚡ Quick Brain",
+    question:"Which number is the largest?",
+    sub:"Think fast!",
+    options:["17","71","27","37"],
+    answer:"71"
+  },
+
+  {
+    type:"🧠 Logic",
+    question:"A week has 7 days. How many days are in 2 weeks?",
+    sub:"Simple thinking!",
+    options:["10","12","14","16"],
+    answer:"14"
+  },
+
+  {
+    type:"🔢 Number Pattern",
+    question:"What comes next?",
+    sub:"3 • 6 • 9 • 12 • ?",
+    options:["14","15","16","18"],
+    answer:"15"
+  },
+
+  {
+    type:"🧩 Missing Number",
+    question:"Which number completes the equation?",
+    sub:"20 - ? = 13",
+    options:["5","6","7","8"],
+    answer:"7"
+  },
+
+  {
+    type:"👀 Visual Detective",
+    question:"Find the different one.",
+    sub:"One emoji is not like the others.",
+    options:["🍎","🍎","🍏","🍎"],
+    answer:"🍏"
+  },
+
+  {
+    type:"⚡ Quick Brain",
+    question:"Which number is even?",
+    sub:"Choose carefully.",
+    options:["13","17","21","24"],
+    answer:"24"
+  },
+
+  {
+    type:"🧠 Logic",
+    question:"You have 3 apples and get 2 more. How many?",
+    sub:"Count them!",
+    options:["4","5","6","7"],
+    answer:"5"
+  },
+
+  {
+    type:"🔢 Number Pattern",
+    question:"What comes next?",
+    sub:"20 • 18 • 16 • 14 • ?",
+    options:["10","11","12","13"],
+    answer:"12"
+  },
+
+  {
+    type:"🧩 Missing Number",
+    question:"Find the missing number.",
+    sub:"4 × ? = 20",
+    options:["4","5","6","7"],
+    answer:"5"
+  },
+
+  {
+    type:"👀 Visual Detective",
+    question:"Which one is different?",
+    sub:"Use your sharp eyes!",
+    options:["⭐","⭐","🌟","⭐"],
+    answer:"🌟"
+  },
+
+  {
+    type:"⚡ Quick Brain",
+    question:"Which number is smallest?",
+    sub:"Think carefully.",
+    options:["42","24","34","52"],
+    answer:"24"
+  },
+
+  {
+    type:"🧠 Logic",
+    question:"Which shape has 3 sides?",
+    sub:"Choose the correct answer.",
+    options:["🔵","🔺","⬛","⭐"],
+    answer:"🔺"
+  },
+
+  {
+    type:"🔢 Number Pattern",
+    question:"What comes next?",
+    sub:"5 • 10 • 15 • 20 • ?",
+    options:["22","23","24","25"],
+    answer:"25"
+  },
+
+  {
+    type:"🧩 Missing Number",
+    question:"Find the missing number.",
+    sub:"30 ÷ ? = 5",
+    options:["4","5","6","7"],
+    answer:"6"
+  },
+
+  {
+    type:"👀 Visual Detective",
+    question:"Find the different one.",
+    sub:"Only one is different!",
+    options:["❤️","❤️","💙","❤️"],
+    answer:"💙"
+  },
+
+  {
+    type:"⚡ Quick Brain",
+    question:"Which number is a multiple of 5?",
+    sub:"Choose one.",
+    options:["12","18","25","32"],
+    answer:"25"
+  },
+
+  {
+    type:"🧠 Logic",
+    question:"If today is Monday, what day comes after Tuesday?",
+    sub:"Use your thinking!",
+    options:["Monday","Tuesday","Wednesday","Thursday"],
+    answer:"Wednesday"
+  }
+
+];
+
+
+/* =========================
+   UPDATE SCREEN
+========================= */
+
+function update(){
+
+  $("level").textContent =
+    Math.min(level,20);
+
+  $("score").textContent =
+    score;
+
+  $("time").textContent =
+    timeLeft;
+
+  $("best").textContent =
+    best;
+
+  $("lives").textContent =
+    "❤️".repeat(lives) +
+    "🖤".repeat(3-lives);
+
+  $("progressBar").style.width =
+    ((Math.min(level,20)-1)/19*100) + "%";
+
+}
+
+
+/* =========================
+   BADGES
+========================= */
+
+function badgeForLevel(){
+
+  if(level === 5){
+
+    $("badge").textContent =
+      "🥉 Bronze Brain — Level 5";
+
+  }
+
+  else if(level === 10){
+
+    $("badge").textContent =
+      "🥈 Silver Brain — Level 10";
+
+  }
+
+  else if(level === 15){
+
+    $("badge").textContent =
+      "🥇 Gold Brain — Level 15";
+
+  }
+
+  else if(level === 20){
+
+    $("badge").textContent =
+      "🏆 ThinkVerse Champion — Level 20";
+
+  }
+
+}
+
+
+/* =========================
+   START LEVEL
+========================= */
+
+function startLevel(){
+
+  if(level > 20){
+
+    finishGame();
+
+    return;
+
+  }
+
+  answered = false;
+
+  const c =
+    challenges[level-1];
+
+  $("type").textContent =
+    c.type;
+
+  $("question").textContent =
+    c.question;
+
+  $("subquestion").textContent =
+    c.sub;
+
+  $("gameArea").innerHTML =
+    "";
+
+  const options =
+    [...c.options]
+      .sort(() => Math.random()-.5);
+
+  const box =
+    document.createElement("div");
+
+  box.className =
+    "options";
+
+  options.forEach(option => {
+
+    const button =
+      document.createElement("button");
+
+    button.className =
+      "option";
+
+    button.textContent =
+      option;
+
+    button.onclick =
+      () => chooseAnswer(
+        option,
+        c.answer,
+        button
+      );
+
+    box.appendChild(button);
+
+  });
+
+  $("gameArea").appendChild(box);
+
+  timeLeft =
+    Math.max(
+      7,
+      12 - Math.floor(level/5)
+    );
+
+  update();
+
+  clearInterval(timer);
+
+  timer =
+    setInterval(() => {
+
+      if(!playing) return;
+
+      timeLeft--;
+
+      update();
+
+      if(timeLeft <= 0){
+
+        clearInterval(timer);
+
+        playing = false;
+
+        lives--;
+
+        wrongSound();
+
+        $("message").textContent =
+          "⏰ Time's up! Try the next challenge.";
+
+        update();
+
+        if(lives <= 0){
+
+          gameOver();
+
+        }else{
+
+          $("startBtn").textContent =
+            "TRY AGAIN 💪";
+
+        }
+
+      }
+
+    },1000);
+
+  playing = true;
+
+  $("startBtn").textContent =
+    "PLAY ▶️";
+
+  $("message").textContent =
+    "Think carefully! 🧠";
+
+}
+
+
+/* =========================
+   ANSWER
+========================= */
+
+function chooseAnswer(
+  selected,
+  correct,
+  button
+){
+
+  if(!playing || answered) return;
+
+  if(selected === correct){
+
+    answered = true;
+
+    playing = false;
+
+    clearInterval(timer);
+
+    button.classList.add(
+      "correct"
+    );
+
+    const points =
+      10 +
+      level +
+      timeLeft;
+
+    score += points;
+
+    if(score > best){
+
+      best = score;
+
+      localStorage.setItem(
+        "thinkverseV5Best",
+        best
+      );
+
+    }
+
+    correctSound();
+
+    $("message").textContent =
+      "🎉 Excellent! +" +
+      points +
+      " stars!";
+
+    $("badge").textContent =
+      "⭐ Brain power +1!";
+
+    update();
+
+    setTimeout(() => {
+
+      level++;
+
+      if(level === 6 ||
+         level === 11 ||
+         level === 16){
+
+        badgeSound();
+
+        showMilestone();
+
+      }
+
+      else if(level > 20){
+
+        finishGame();
+
+      }
+
+      else{
+
+        startLevel();
+
+      }
+
+    },700);
+
+  }
+
+  else{
+
+    button.classList.add(
+      "wrong"
+    );
+
+    lives--;
+
+    wrongSound();
+
+    $("message").textContent =
+      "😊 Almost! Think again!";
+
+    update();
+
+    if(lives <= 0){
+
+      clearInterval(timer);
+
+      playing = false;
+
+      setTimeout(
+        gameOver,
+        500
+      );
+
+    }
+
+  }
+
+}
+
+
+/* =========================
+   MILESTONE
+========================= */
+
+function showMilestone(){
+
+  let title = "";
+  let trophy = "";
+  let text = "";
+
+  if(level === 6){
+
+    trophy = "🥉";
+
+    title =
+      "BRONZE BRAIN!";
+
+    text =
+      "Amazing! You completed 5 challenges! Keep your brain shining!";
+
+  }
+
+  else if(level === 11){
+
+    trophy = "🥈";
+
+    title =
+      "SILVER BRAIN!";
+
+    text =
+      "Fantastic! 10 challenges completed! Your thinking skills are growing!";
+
+  }
+
+  else if(level === 16){
+
+    trophy = "🥇";
+
+    title =
+      "GOLD BRAIN!";
+
+    text =
+      "WOW! 15 challenges completed! You are becoming a ThinkVerse star!";
+
+  }
+
+  $("modalTrophy").textContent =
+    trophy;
+
+  $("modalTitle").textContent =
+    title;
+
+  $("modalText").textContent =
+    text;
+
+  $("modalScore").textContent =
+    "⭐ Score: " + score;
+
+  $("modalBtn").textContent =
+    "NEXT CHALLENGE 🚀";
+
+  $("modal").classList.add(
+    "show"
+  );
+
+  $("modalBtn").onclick =
+    () => {
+
+      $("modal").classList.remove(
+        "show"
+      );
+
+      startLevel();
+
+    };
+
+}
+
+
+/* =========================
+   FINAL CHAMPION
+========================= */
+
+function finishGame(){
+
+  clearInterval(timer);
+
+  playing = false;
+
+  $("progressBar").style.width =
+    "100%";
+
+  championSound();
+
+  $("modalTrophy").textContent =
+    "🏆";
+
+  $("modalTitle").textContent =
+    "THINKVERSE CHAMPION!";
+
+  $("modalText").innerHTML =
+    "🎉 YOU COMPLETED ALL 20 CHALLENGES!<br><br>" +
+    "🧠 Fantastic thinking!<br>" +
+    "🌈 You never gave up!";
+
+  $("modalScore").textContent =
+    "⭐ Final Score: " + score;
+
+  $("modalBtn").textContent =
+    "PLAY AGAIN 🔄";
+
+  $("modal").classList.add(
+    "show"
+  );
+
+  $("modalBtn").onclick =
+    () => {
+
+      $("modal").classList.remove(
+        "show"
+      );
+
+      resetGame();
+
+    };
+
+}
+
+
+/* =========================
+   GAME OVER
+========================= */
+
+function gameOver(){
+
+  clearInterval(timer);
+
+  playing = false;
+
+  $("message").innerHTML =
+    "🏁 Game over! Score: <strong>" +
+    score +
+    "</strong> ⭐";
+
+  $("startBtn").textContent =
+    "PLAY AGAIN 🔄";
+
+  $("badge").textContent =
+    score >= 100
+      ? "🌟 Super Brain! Keep going!"
+      : "💪 Great effort! Try again!";
+
+}
+
+
+/* =========================
+   RESET
+========================= */
+
+function resetGame(){
+
+  level = 1;
+
+  score = 0;
+
+  lives = 3;
+
+  timeLeft = 10;
+
+  playing = false;
+
+  answered = false;
+
+  $("badge").textContent =
+    "🎯 Complete challenges and collect Brain Badges!";
+
+  $("message").textContent =
+    "Ready for a new Brain Quest!";
+
+  update();
+
+  startLevel();
+
+}
+
+
+/* =========================
+   START BUTTON
+========================= */
+
+$("startBtn").onclick = () => {
+
+  getAudio();
+
+  startMusic();
+
+  if(
+    $("startBtn").textContent
+      .includes("PLAY AGAIN")
+  ){
+
+    resetGame();
+
+  }
+
+  else if(!playing){
+
+    startLevel();
+
+  }
+
+};
+
+
+/* =========================
+   MUSIC BUTTON
+========================= */
+
+$("musicBtn").onclick =
+  toggleMusic;
+
+
+/* =========================
+   INITIAL
+========================= */
+
+update();
+
+</script>
+
+</body>
+</html>
